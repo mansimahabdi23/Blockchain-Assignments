@@ -6,11 +6,12 @@ import json
 from time import time
 
 class Block:
-    def __init__(self, index, timestamp, file_hash, previous_hash):
+    def __init__(self, index, timestamp, file_hash, previous_hash, nonce=0):
         self.index = index
         self.timestamp = timestamp
         self.file_hash = file_hash
         self.previous_hash = previous_hash
+        self.nonce = nonce
         self.hash = self.calculate_hash()
     
     def calculate_hash(self):
@@ -20,6 +21,7 @@ class Block:
             "timestamp" : self.timestamp,
             "file_hash" : self.file_hash,
             "previous_hash" : self.previous_hash
+            
         }, sort_keys=True).encode()
         return hashlib.sha256(block_string).hexdigest()
     
