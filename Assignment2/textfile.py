@@ -69,8 +69,8 @@ class FileBlockchain:
             # print(f": {mined_block.hash[:20]}")
             
 
-            self.chain.append(new_block)
-            print(f"Success: Block #{new_block.index} added for {file_path}")
+            # self.chain.append(new_block)
+            # print(f"Success: Block #{new_block.index} added for {file_path}")
         except FileNotFoundError:
             print(f"Error: File {file_path} not found.")
     
@@ -88,18 +88,26 @@ class FileBlockchain:
                 return False
         return True
 
-# 1. Initialize the Blockchain
+
+
+# List of documents to be notarized
+legal_documents = ["contract.txt", "appendix_A.txt", "terms_of_service.txt"]
+
 my_registry = FileBlockchain(difficulty=4)
 
+for doc in legal_documents:
+    # Creating dummy files so the code doesn't error out
+    with open(doc, "w") as f: f.write(f"Content for {doc}")
+    my_registry.add_file_block(doc)
 # 2. Add a text file to the blockchain 
-my_registry.add_file_block("contract.txt")
+# my_registry.add_file_block(legal_documents)
 
 # 3. View the Chain
 for block in my_registry.chain:
     print(f"\nBlock {block.index} | Hash: {block.hash[:20]}")
     print(f"File Hash: {block.file_hash[:20]}")
     print(f"Prev Hash: {block.previous_hash[:20]}")
-    # print(f"Timestamp:" {block.time})
+    print(f"Timestamp: {block.timestamp}")
 
 print(f"Is blockchain valid? {my_registry.is_chain_valid()}")
 
@@ -113,4 +121,3 @@ for block in my_registry.chain:
     print(f"Prev Hash: {block.previous_hash[:20]}")
 
 print(f"Is blockchain valid after tampering? {my_registry.is_chain_valid()}")
-
