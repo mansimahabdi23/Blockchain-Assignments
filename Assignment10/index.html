@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>DApp - Simple Storage</title>
+    <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
+</head>
+<body>
+
+<h2>Simple Storage DApp</h2>
+
+<button onclick="connectWallet()">Connect Wallet</button>
+<br><br>
+
+<input type="number" id="inputValue" placeholder="Enter value">
+<button onclick="setValue()">Set Value</button>
+
+<h3>Stored Value: <span id="value">0</span></h3>
+
+<script>
+let web3;
+let contract;
+
+// Replace with your contract ABI
+const abi = [
+    {
+        "inputs":[{"internalType":"uint256","name":"_value","type":"uint256"}],
+        "name":"setValue",
+        "outputs":[],
+        "stateMutability":"nonpayable",
+        "type":"function"
+    },
+    {
+        "inputs":[],
+        "name":"getValue",
+        "outputs":[{"internalType":"uint256","name":"","type":"uint256"}],
+        "stateMutability":"view",
+        "type":"function"
+    }
+];
+
+// Replace with your deployed contract address
+const contractAddress = "YOUR_CONTRACT_ADDRESS";
+
+async function connectWallet() {
+    if (window.ethereum) {
+        web3 = new Web3(window.ethereum);
+        await window.ethereum.request({ method: 'eth_requestAccounts' });
+
+        contract = new web3.eth.Contract(abi, contractAddress);
+
+        getValue();
+    } else {
+        alert("Please install MetaMask");
+    }
+}
+
+async function getValue() {
+    const value = await contract.methods.getValue().call();
+    document.getElementById("value").innerText = value;
+}
+
+async function setValue() {
+    const accounts = await web3.eth.getAccounts();
+    const input = document.getElementById("inputValue").value;
+
+    await contract.methods.setValue(input).send({ from: accounts[0] });
+
+    getValue();
+}
+</script>
+
+</body>
+</html>
