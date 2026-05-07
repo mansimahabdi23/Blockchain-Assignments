@@ -107,6 +107,7 @@ for block in my_registry.chain:
     print(f"\nBlock {block.index} | Hash: {block.hash[:20]}")
     print(f"File Hash: {block.file_hash[:20]}")
     print(f"Prev Hash: {block.previous_hash[:20]}")
+    print(f"Nonce: {block.nonce}")
     print(f"Timestamp: {block.timestamp}")
 
 print(f"Is blockchain valid? {my_registry.is_chain_valid()}")
@@ -119,5 +120,8 @@ for block in my_registry.chain:
     print(f"\nBlock {block.index} | Hash: {block.hash[:20]}")
     print(f"File Hash: {block.file_hash[:20]}")
     print(f"Prev Hash: {block.previous_hash[:20]}")
+    print(f"Nonce: {block.nonce}")
+    print(f"Timestamp: {block.timestamp}")
 
 print(f"Is blockchain valid after tampering? {my_registry.is_chain_valid()}")
+
