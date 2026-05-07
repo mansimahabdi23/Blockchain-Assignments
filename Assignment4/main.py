@@ -1,94 +1,70 @@
-import time
-import uuid
+"""
+Assignment 4: Simulate Transaction + Double-Spending Prevention
+----------------------------------------------------------------
+Goal:
+- Simulate wallets and balances
+- Perform a transaction
+- Prevent double spending by rejecting overspend
 
-# -----------------------------
-# Wallet Class
-# -----------------------------
+Expected output:
+- First transaction succeeds
+- Second transaction fails if sender has insufficient balance
+"""
+
+from dataclasses import dataclass
+
+
+@dataclass
 class Wallet:
-    def __init__(self, initial_balance):
-        self.address = str(uuid.uuid4())
-        self.balance = initial_balance
+    name: str
+    balance: float
 
-# -----------------------------
-# Transaction Class
-# -----------------------------
-class Transaction:
-    def __init__(self, sender, receiver, amount):
-        self.sender = sender
-        self.receiver = receiver
-        self.amount = amount
-        self.timestamp = time.time()
 
-# -----------------------------
-# Blockchain Simulation
-# -----------------------------
-class Blockchain:
+class SimpleLedger:
     def __init__(self):
-        self.chain = []
-        self.pending_transactions = []
+        self.transactions = []
 
-    def get_balance(self, wallet):
-        return wallet.balance
+    def transfer(self, sender: Wallet, receiver: Wallet, amount: float):
+        # Double-spending prevention: sender cannot spend more than balance.
+        if amount <= 0:
+            print("Transaction rejected: amount must be positive.")
+            return False
 
-    def validate_transaction(self, tx):
-        if tx.sender.balance >= tx.amount:
-            return True
-        return False
+        if sender.balance < amount:
+            print(
+                f"Transaction rejected: {sender.name} has {sender.balance}, needs {amount}."
+            )
+            return False
 
-    def add_transaction(self, tx):
-        if self.validate_transaction(tx):
-            self.pending_transactions.append(tx)
-            print(f"✅ Transaction Added: {tx.amount} from A to B")
-        else:
-            print(f"❌ Transaction Rejected: Insufficient Balance")
+        sender.balance -= amount
+        receiver.balance += amount
+        tx = {
+            "from": sender.name,
+            "to": receiver.name,
+            "amount": amount,
+        }
+        self.transactions.append(tx)
+        print(f"Transaction success: {sender.name} -> {receiver.name}, amount={amount}")
+        return True
 
-    def mine_block(self):
-        print("\n⛏️ Mining Block...")
-        
-        for tx in self.pending_transactions:
-            if tx.sender.balance >= tx.amount:
-                tx.sender.balance -= tx.amount
-                tx.receiver.balance += tx.amount
-                self.chain.append(tx)
-                print(f"Processed: {tx.amount}")
-            else:
-                print(f"Skipped (Double Spending Attempt): {tx.amount}")
+    def show_balances(self, wallets):
+        print("Current Balances:")
+        for w in wallets:
+            print(f"  {w.name}: {w.balance}")
 
-        self.pending_transactions = []
-        print("✅ Block Mined Successfully\n")
 
-# -----------------------------
-# Simulation
-# -----------------------------
-def simulate():
-    # Create wallets
-    walletA = Wallet(100)
-    walletB = Wallet(50)
+if __name__ == "__main__":
+    alice = Wallet("Alice", 100)
+    bob = Wallet("Bob", 20)
 
-    blockchain = Blockchain()
+    ledger = SimpleLedger()
 
-    print("Initial Balances:")
-    print(f"A: {walletA.balance}, B: {walletB.balance}\n")
+    ledger.show_balances([alice, bob])
 
-    # Normal transaction
-    tx1 = Transaction(walletA, walletB, 70)
-    blockchain.add_transaction(tx1)
-    blockchain.mine_block()
+    # Valid transaction
+    ledger.transfer(alice, bob, 30)
+    ledger.show_balances([alice, bob])
 
-    print("Balances After First Transaction:")
-    print(f"A: {walletA.balance}, B: {walletB.balance}\n")
-
-    # Double spending attempt
-    tx2 = Transaction(walletA, walletB, 50)
-    tx3 = Transaction(walletA, walletB, 60)
-
-    blockchain.add_transaction(tx2)
-    blockchain.add_transaction(tx3)
-
-    blockchain.mine_block()
-
-    print("Final Balances:")
-    print(f"A: {walletA.balance}, B: {walletB.balance}\n")
-
-# Run simulation
-simulate()
+    # Attempted double-spend / overspend
+    ledger.transfer(alice, bob, 1000)
+    ledger.show_balances([alice, bob])
